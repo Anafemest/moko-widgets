@@ -41,16 +41,6 @@ class App(
         val sharedFactory = SharedFactory()
         val theme = AppTheme.baseTheme
 
-        val loginTheme = Theme(AppTheme.loginScreen) {
-            factory[InputWidget.DefaultCategory] = FlatInputViewFactory(
-                platformDependency = widgetsPlatformDeps,
-                textStyle = TextStyle(
-                    size = 16,
-                    color = Color(0x16171AFF)
-                ),
-                backgroundColor = Color(0xF5F5F5FF)
-            )
-        }
 
         registerScreenFactory(RootBottomNavigationScreen::class) { RootBottomNavigationScreen(this) }
         registerScreenFactory(ProductsNavigationScreen::class) { ProductsNavigationScreen(this) }
@@ -60,7 +50,7 @@ class App(
         registerScreenFactory(CartScreen::class) { CartScreen(theme) }
         registerScreenFactory(ProductScreen::class) { ProductScreen(theme) }
 
-        registerScreenFactory(LoginScreen::class) { LoginScreen(loginTheme) { LoginViewModel(it) } }
+        registerScreenFactory(LoginScreen::class) { LoginScreen(AppTheme.loginScreen) { LoginViewModel(it) } }
 
         registerScreenFactory(PlatformProfileScreen::class) { PlatformProfileScreen(screensPlatformDeps) }
 
@@ -68,7 +58,7 @@ class App(
     }
 
     override fun getRootScreen(): KClass<out Screen<Args.Empty>> {
-        return MainNavigationScreen::class
+        return LoginScreen::class
     }
 }
 

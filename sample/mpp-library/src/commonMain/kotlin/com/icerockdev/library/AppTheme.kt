@@ -8,30 +8,14 @@ import com.icerockdev.library.sample.CryptoProfileScreen
 import com.icerockdev.library.sample.UsersScreen
 import com.icerockdev.library.universal.LoginScreen
 import dev.icerock.moko.graphics.Color
-import dev.icerock.moko.widgets.ButtonWidget
-import dev.icerock.moko.widgets.CollectionWidget
-import dev.icerock.moko.widgets.ConstraintWidget
-import dev.icerock.moko.widgets.InputWidget
-import dev.icerock.moko.widgets.StatefulWidget
+import dev.icerock.moko.widgets.*
 import dev.icerock.moko.widgets.core.Theme
-import dev.icerock.moko.widgets.factory.ConstraintViewFactory
-import dev.icerock.moko.widgets.factory.StatefulViewFactory
-import dev.icerock.moko.widgets.factory.SystemButtonViewFactory
-import dev.icerock.moko.widgets.factory.SystemCollectionViewFactory
-import dev.icerock.moko.widgets.factory.SystemInputViewFactory
-import dev.icerock.moko.widgets.factory.SystemListViewFactory
-import dev.icerock.moko.widgets.factory.SystemTextViewFactory
-import dev.icerock.moko.widgets.style.background.Background
-import dev.icerock.moko.widgets.style.background.Border
-import dev.icerock.moko.widgets.style.background.Fill
-import dev.icerock.moko.widgets.style.background.Shape
-import dev.icerock.moko.widgets.style.background.StateBackground
-import dev.icerock.moko.widgets.style.view.Colors
-import dev.icerock.moko.widgets.style.view.MarginValues
-import dev.icerock.moko.widgets.style.view.PaddingValues
-import dev.icerock.moko.widgets.style.view.TextAlignment
-import dev.icerock.moko.widgets.style.view.TextStyle
-import dev.icerock.moko.widgets.style.view.rgba
+import dev.icerock.moko.widgets.factory.*
+import dev.icerock.moko.widgets.screen.NavigationBar
+import dev.icerock.moko.widgets.screen.NavigationScreen
+import dev.icerock.moko.widgets.screen.RootNavigationScreen
+import dev.icerock.moko.widgets.style.background.*
+import dev.icerock.moko.widgets.style.view.*
 import dev.icerock.moko.widgets.utils.platformSpecific
 
 object AppTheme {
@@ -39,6 +23,7 @@ object AppTheme {
 
     object AppColor {
         val white = Color(0xFF, 0xFF, 0xFF, 0xFF)
+        val black = Color(0x00, 0x00, 0x00, 0xFF)
         val redError = Color(0xFF, 0x66, 0x66, 0xFF)
         val grayText = Color(0x26, 0x26, 0x28, 0xFF)
         val gray2Text = Color(0x4A, 0x4A, 0x4A, 0xFF)
@@ -48,8 +33,23 @@ object AppTheme {
     }
 
     val baseTheme = Theme {
+
         factory[CryptoProfileScreen.Id.DelimiterText] = SystemTextViewFactory(
             textAlignment = TextAlignment.CENTER
+        )
+
+        factory[TabsWidget.DefaultCategory] = SystemTabsViewFactory(
+            background =
+            platformSpecific(
+                android = Background(
+                    fill = Fill.Solid
+                        (
+                        color = AppColor.lightGrayText
+                    )
+                ),
+                ios = Background(fill = Fill.Solid(color = AppColor.redError))
+
+            )
         )
         factory[UsersScreen.Id.List] = SystemListViewFactory(
             padding = PaddingValues(8f)
@@ -106,26 +106,87 @@ object AppTheme {
         )
     }
 
+
     val loginScreen = Theme(baseTheme) {
         factory[ConstraintWidget.DefaultCategory] = ConstraintViewFactory(
-            padding = PaddingValues(16f),
+            padding = PaddingValues(0f),
             background = Background(
                 fill = Fill.Solid(Colors.white)
             )
         )
 
+
         factory[InputWidget.DefaultCategory] = SystemInputViewFactory(
-            margins = MarginValues(bottom = 8f),
-            underLineColor = Color(0xe5e6eeFF),
+            errorTextStyle = TextStyle(
+                color = Color(0x00FF00FF)
+            ),
+            underLineColor = Color(0xDEDFE8FF),
+            underLineFocusedColor = Color(0x020B14FF),
             labelTextStyle = TextStyle(
-                color = Color(0x777889FF)
+                color = Color(0x7C7E86FF)
+            ),
+            textStyle = TextStyle(
+                color = Color(0x151515FF),
+                size = 16
+
             )
         )
 
-        val corners = platformSpecific(android = 8f, ios = 25f)
+        val corners = platformSpecific(android = 25f, ios = 25f)
+
+
+        factory[LoginScreen.Id.ToolBarBg] = ContainerViewFactory(
+            background = Background(
+                fill = Fill.Solid(
+                    color = Color(0xFFFFFFFF)
+                )
+            )
+        )
+
+        factory[LoginScreen.Id.TitleToolBar] = SystemTextViewFactory(
+            textStyle = TextStyle(
+                color = Color(0x151515FF),
+                size = 25,
+                fontStyle = FontStyle.BOLD
+            ),
+            margins = MarginValues(
+                start = 24f
+            )
+        )
 
         factory[ButtonWidget.DefaultCategory] = SystemButtonViewFactory(
-            margins = MarginValues(top = 32f),
+            background = {
+                val bg: (Fill) -> Background = {
+                    Background(
+                        fill = it,
+                        shape = Shape.Rectangle(
+                            cornerRadius = 8f
+                        )
+                    )
+                }
+                StateBackground(
+                    normal = bg(
+                        Fill.Gradient(
+                            direction = Direction.TOP_BOTTOM,
+                            colors = listOf(Color(0xF54D4EFF), Color(0xCD0402FF))
+                        )
+                    ),
+                    pressed = bg(
+                        Fill.Gradient(
+                            direction = Direction.TOP_BOTTOM,
+                            colors = listOf(Color(0x943232FF), Color(0x600504FF))
+                        )
+                    ),
+                    disabled = bg(Fill.Solid(Color(0xC9C9C9FF)))
+                )
+            }.invoke(),
+            textStyle = TextStyle(
+                color = Color(0xFFFFFFFF)
+            ),
+            isAllCaps = false
+        )
+
+        factory[LoginScreen.Id.RegistrationButtonId] = SystemButtonViewFactory(
             background = {
                 val bg: (Color) -> Background = {
                     Background(
@@ -136,44 +197,165 @@ object AppTheme {
                     )
                 }
                 StateBackground(
-                    normal = bg(Color(0x6770e0FF)),
-                    pressed = bg(Color(0x6770e0EE)),
-                    disabled = bg(Color(0x6770e0BB))
+                    normal = bg(Color(0xFFFFFF00)),
+                    pressed = bg(Color(0xE7E7E733)),
+                    disabled = bg(Color(0x00000000))
                 )
             }.invoke(),
             textStyle = TextStyle(
-                color = Colors.white
-            )
+                color = Color(0xD20C0AFF)
+            ),
+            isAllCaps = false
         )
 
-        factory[LoginScreen.Id.RegistrationButtonId] = SystemButtonViewFactory(
-            margins = MarginValues(top = 16f),
-            padding = platformSpecific(
-                ios = PaddingValues(start = 16f, end = 16f),
-                android = null
-            ),
+        factory[LoginScreen.Id.SkipButtonId] = SystemButtonViewFactory(
             background = {
                 val bg: (Color) -> Background = {
                     Background(
                         fill = Fill.Solid(it),
-                        border = Border(
-                            color = Color(0xF2F2F8FF),
-                            width = 2f
-                        ),
-                        shape = Shape.Rectangle(cornerRadius = corners)
+                        shape = Shape.Rectangle(
+                            cornerRadius = corners
+                        )
                     )
                 }
                 StateBackground(
-                    normal = bg(Colors.white),
-                    pressed = bg(Color(0xEEEEEEFF)),
-                    disabled = bg(Color(0xBBBBBBFF))
+                    normal = bg(Color(0xFFFFFF00)),
+                    pressed = bg(Color(0xE7E7E733)),
+                    disabled = bg(Color(0x00000000))
                 )
             }.invoke(),
             textStyle = TextStyle(
-                color = Color(0x777889FF)
-            )
+                fontStyle = FontStyle.MEDIUM,
+                size = 16,
+                color = Color(0xD20C0AFF)
+            ),
+            isAllCaps = false
         )
     }
+
+
+//    val loginScreen = Theme(baseTheme) {
+//        factory[ConstraintWidget.DefaultCategory] = ConstraintViewFactory(
+//            padding = PaddingValues(0f),
+//            background = Background(
+//                fill = Fill.Solid(Colors.white)
+//            )
+//        )
+//
+//
+//        factory[InputWidget.DefaultCategory] = SystemInputViewFactory(
+//            margins = MarginValues(bottom = 8f),
+//            underLineColor = Color(0xDEDFE8FF),
+//            underLineFocusedColor = Color(0x020B14FF),
+//            background = Background(
+//                fill = Fill.Solid(Colors.white)
+//            ),
+//            labelTextStyle = TextStyle(
+//                color = Color(0x7C7E86FF)
+//            ),
+//            textStyle = TextStyle(
+//                color = Color(0x020B14FF)
+//
+//            )
+//        )
+//
+//        val corners = platformSpecific(android = 25f, ios = 25f)
+//
+//
+//        factory[LoginScreen.Id.ToolBarBg] = ContainerViewFactory(
+//            background = Background(
+//                fill = Fill.Solid(
+//                    color = Color(0x020B14FF)
+//                )
+//            )
+//        )
+//
+//        factory[LoginScreen.Id.TitleToolBar] = SystemTextViewFactory(
+//            textStyle = TextStyle(
+//                color = Color(0xFFFFFFFF),
+//                size = 24,
+//                fontStyle = FontStyle.BOLD
+//            ),
+//            margins = MarginValues(
+//                start = 24f
+//            )
+//        )
+//
+//        factory[ButtonWidget.DefaultCategory] = SystemButtonViewFactory(
+//            margins = MarginValues(
+//                top = 32f,
+//                start = 32f,
+//                end = 32f
+//            ),
+//            background = {
+//                val bg: (Color) -> Background = {
+//                    Background(
+//                        fill = Fill.Solid(it),
+//                        shape = Shape.Rectangle(
+//                            cornerRadius = corners
+//                        )
+//                    )
+//                }
+//                StateBackground(
+//                    normal = bg(Color(0xEBC870FF)),
+//                    pressed = bg(Color(0x988045EE)),
+//                    disabled = bg(Color(0xC8C8C8BB))
+//                )
+//            }.invoke(),
+//            textStyle = TextStyle(
+//                color = Colors.black
+//            )
+//        )
+//
+//        factory[LoginScreen.Id.RegistrationButtonId] = SystemButtonViewFactory(
+//            margins = MarginValues(
+//                top = 32f,
+//                start = 32f,
+//                end = 32f
+//            ),
+//            background = {
+//                val bg: (Color) -> Background = {
+//                    Background(
+//                        fill = Fill.Solid(it),
+//                        shape = Shape.Rectangle(
+//                            cornerRadius = corners
+//                        )
+//                    )
+//                }
+//                StateBackground(
+//                    normal = bg(Color(0xFFFFFF00)),
+//                    pressed = bg(Color(0xE7E7E733)),
+//                    disabled = bg(Color(0x000000BB))
+//                )
+//            }.invoke(),
+//            textStyle = TextStyle(
+//                color = Color(0x7C7E86FF)
+//            )
+//        )
+//
+//        factory[LoginScreen.Id.SkipButtonId] = SystemButtonViewFactory(
+//            background = {
+//                val bg: (Color) -> Background = {
+//                    Background(
+//                        fill = Fill.Solid(it),
+//                        shape = Shape.Rectangle(
+//                            cornerRadius = corners
+//                        )
+//                    )
+//                }
+//                StateBackground(
+//                    normal = bg(Color(0xFFFFFF00)),
+//                    pressed = bg(Color(0xE7E7E733)),
+//                    disabled = bg(Color(0x000000BB))
+//                )
+//            }.invoke(),
+//            textStyle = TextStyle(
+//                fontStyle = FontStyle.MEDIUM,
+//                size = 16,
+//                color = Color(0xEBC870FF)
+//            )
+//        )
+//    }
 
 
 //    val errorTextStyle: TextStyle = TextStyle(

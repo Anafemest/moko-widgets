@@ -22,7 +22,7 @@ import dev.icerock.moko.widgets.style.view.WidgetSize
 class ProductsScreen(
     private val theme: Theme
 ) : WidgetScreen<Args.Empty>(), NavigationItem {
-    override val navigationBar = NavigationBar.Normal(title = "Products".desc())
+    override val navigationBar = NavigationBar.Normal(title = "Авторизация".desc())
 
     override fun createContentWidget(): Widget<WidgetSize.Const<SizeSpec.AsParent, SizeSpec.AsParent>> {
         return with(theme) {

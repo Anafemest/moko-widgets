@@ -12,16 +12,10 @@ import dev.icerock.moko.mvvm.dispatcher.EventsDispatcherOwner
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import dev.icerock.moko.resources.desc.StringDesc
 import dev.icerock.moko.resources.desc.desc
-import dev.icerock.moko.widgets.ButtonWidget
-import dev.icerock.moko.widgets.ImageWidget
-import dev.icerock.moko.widgets.InputWidget
-import dev.icerock.moko.widgets.button
-import dev.icerock.moko.widgets.constraint
+import dev.icerock.moko.widgets.*
 import dev.icerock.moko.widgets.core.Image
 import dev.icerock.moko.widgets.core.Theme
 import dev.icerock.moko.widgets.core.Value
-import dev.icerock.moko.widgets.image
-import dev.icerock.moko.widgets.input
 import dev.icerock.moko.widgets.screen.Args
 import dev.icerock.moko.widgets.screen.NavigationBar
 import dev.icerock.moko.widgets.screen.NavigationItem
@@ -32,7 +26,6 @@ import dev.icerock.moko.widgets.screen.listen
 import dev.icerock.moko.widgets.style.input.InputType
 import dev.icerock.moko.widgets.style.view.SizeSpec
 import dev.icerock.moko.widgets.style.view.WidgetSize
-import dev.icerock.moko.widgets.text
 
 class LoginScreen(
     private val theme: Theme,
@@ -51,73 +44,164 @@ class LoginScreen(
         viewModel.eventsDispatcher.listen(this@LoginScreen, this@LoginScreen)
 
         constraint(size = WidgetSize.AsParent) {
-            val logoImage = +image(
-                size = WidgetSize.Const(SizeSpec.WrapContent, SizeSpec.WrapContent),
-                image = const(Image.resource(MR.images.logo)),
-                scaleType = ImageWidget.ScaleType.FIT
+            val toolBar = +container(
+                size = WidgetSize.Const(SizeSpec.AsParent, SizeSpec.Exact(60f)),
+                id=Id.ToolBarBg
+            ) {}
+
+            val titleToolBar = +text(
+                id = Id.TitleToolBar,
+                size = WidgetSize.WrapContent,
+                text = const("Авторизация")
             )
 
-            val emailInput = +input(
+            val skipButton = +button(
+                id = Id.SkipButtonId,
+                size = WidgetSize.WrapContent,
+                content = ButtonWidget.Content.Text(Value.data("Регистрация".desc())),
+                onTap = viewModel::onRegistrationPressed
+            )
+
+            val phoneInput = +input(
                 size = WidgetSize.WidthAsParentHeightWrapContent,
-                id = Id.EmailInputId,
-                label = const("Email".desc() as StringDesc),
-                field = viewModel.emailField,
+                id = Id.PhoneInputId,
+                label = const("Номер телефона".desc() as StringDesc),
+                field = viewModel.phoneField,
                 inputType = InputType.PHONE
             )
             val passwordInput = +input(
                 size = WidgetSize.WidthAsParentHeightWrapContent,
                 id = Id.PasswordInputId,
-                label = const("Password".desc() as StringDesc),
-                field = viewModel.passwordField
+                label = const("Пароль".desc() as StringDesc),
+                field = viewModel.passwordField,
+                inputType = InputType.PLAIN_TEXT
             )
             val loginButton = +button(
                 size = WidgetSize.Const(SizeSpec.AsParent, SizeSpec.Exact(50f)),
-                content = ButtonWidget.Content.Text(Value.data("Login".desc())),
+                content = ButtonWidget.Content.Text(Value.data("Войти".desc())),
                 onTap = viewModel::onLoginPressed
             )
 
             val registerButton = +button(
                 id = Id.RegistrationButtonId,
-                size = WidgetSize.Const(SizeSpec.WrapContent, SizeSpec.Exact(40f)),
-                content = ButtonWidget.Content.Text(Value.data("Registration".desc())),
+                size = WidgetSize.Const(SizeSpec.AsParent, SizeSpec.Exact(50f)),
+                content = ButtonWidget.Content.Text(Value.data("Продолжить без авторизации".desc())),
                 onTap = viewModel::onRegistrationPressed
             )
 
-            val copyrightText = +text(
-                size = WidgetSize.WrapContent,
-                text = const("IceRock Development")
-            )
-
             constraints {
-                passwordInput centerYToCenterY root
+                toolBar topToTop root
+                toolBar leftRightToLeftRight root
+
+                titleToolBar bottomToBottom toolBar
+                titleToolBar leftToLeft toolBar
+
+                skipButton bottomToBottom toolBar
+                skipButton rightToRight toolBar
+
+                phoneInput topToBottom toolBar offset 32
+                phoneInput leftRightToLeftRight root offset 16
+
+                passwordInput topToBottom phoneInput offset 24
                 passwordInput leftRightToLeftRight root offset 16
 
-                emailInput bottomToTop passwordInput offset 8
-                emailInput leftRightToLeftRight root offset 16
-
-                loginButton topToBottom passwordInput
+                loginButton bottomToTop registerButton offset 16
                 loginButton leftRightToLeftRight root
 
-                registerButton topToBottom loginButton
-                registerButton rightToRight root
+                registerButton bottomToBottom root.safeArea offset 16
+                loginButton leftRightToLeftRight root
 
-                // logo image height must be automatic ?
-                logoImage centerXToCenterX root
-                logoImage.verticalCenterBetween(
-                    top = root.top,
-                    bottom = emailInput.top
-                )
-
-                copyrightText centerXToCenterX root
-                copyrightText bottomToBottom root.safeArea offset 8
             }
         }
     }
 
+
+
+//    override fun createContentWidget() = with(theme) {
+//        val viewModel = getViewModel {
+//            loginViewModelFactory(createEventsDispatcher())
+//        }
+//        viewModel.eventsDispatcher.listen(this@LoginScreen, this@LoginScreen)
+//
+//        constraint(size = WidgetSize.AsParent) {
+//            val toolBar = +container(
+//                size = WidgetSize.Const(SizeSpec.AsParent, SizeSpec.Exact(60f)),
+//                id=Id.ToolBarBg
+//            ) {}
+//
+//            val titleToolBar = +text(
+//                id = Id.TitleToolBar,
+//                size = WidgetSize.WrapContent,
+//                text = const("Authorization")
+//            )
+//
+//            val phoneInput = +input(
+//                size = WidgetSize.WidthAsParentHeightWrapContent,
+//                id = Id.PhoneInputId,
+//                label = const("Phone".desc() as StringDesc),
+//                field = viewModel.phoneField,
+//                inputType = InputType.PHONE
+//            )
+//            val passwordInput = +input(
+//                size = WidgetSize.WidthAsParentHeightWrapContent,
+//                id = Id.PasswordInputId,
+//                label = const("Password".desc() as StringDesc),
+//                field = viewModel.passwordField,
+//                inputType = InputType.PLAIN_TEXT
+//            )
+//            val loginButton = +button(
+//                size = WidgetSize.Const(SizeSpec.AsParent, SizeSpec.Exact(50f)),
+//                content = ButtonWidget.Content.Text(Value.data("Login".desc())),
+//                onTap = viewModel::onLoginPressed
+//            )
+//
+//            val registerButton = +button(
+//                id = Id.RegistrationButtonId,
+//                size = WidgetSize.Const(SizeSpec.AsParent, SizeSpec.Exact(50f)),
+//                content = ButtonWidget.Content.Text(Value.data("Registration".desc())),
+//                onTap = viewModel::onRegistrationPressed
+//            )
+//
+//            val skipButton = +button(
+//                id = Id.SkipButtonId,
+//                size = WidgetSize.WrapContent,
+//                content = ButtonWidget.Content.Text(Value.data("SKIP".desc())),
+//                onTap = viewModel::onRegistrationPressed
+//            )
+//
+//                        constraints {
+//                toolBar topToTop root
+//                toolBar leftRightToLeftRight root
+//
+//                titleToolBar centerYToCenterY toolBar
+//                titleToolBar leftToLeft toolBar
+//
+//                skipButton centerYToCenterY toolBar
+//                skipButton rightToRight toolBar
+//
+//                phoneInput topToBottom toolBar offset 32
+//                phoneInput leftRightToLeftRight root offset 16
+//
+//                passwordInput topToBottom phoneInput offset 24
+//                passwordInput leftRightToLeftRight root offset 16
+//
+//                loginButton bottomToTop registerButton offset 16
+//                loginButton leftRightToLeftRight root
+//
+//                registerButton bottomToBottom root.safeArea offset 16
+//                loginButton leftRightToLeftRight root
+//
+//            }
+//        }
+//    }
+
     object Id {
-        object EmailInputId : InputWidget.Id
+        object PhoneInputId : InputWidget.Id
         object PasswordInputId : InputWidget.Id
         object RegistrationButtonId : ButtonWidget.Id
+        object SkipButtonId : ButtonWidget.Id
+        object ToolBarBg : ContainerWidget.Id
+        object TitleToolBar : TextWidget.Id
     }
 
     interface Parent {
@@ -132,11 +216,10 @@ class LoginScreen(
 class LoginViewModel(
     override val eventsDispatcher: EventsDispatcher<EventsListener>
 ) : ViewModel(), EventsDispatcherOwner<LoginViewModel.EventsListener> {
-    val emailField = FormField<String, StringDesc>("", liveBlock { null })
-    val passwordField = FormField<String, StringDesc>("", liveBlock { null })
+    val phoneField = FormField<String, StringDesc>("", liveBlock { null })
+    val passwordField = FormField<String, StringDesc>("", liveBlock { "blablabla".desc() })
 
     fun onLoginPressed() {
-        eventsDispatcher.dispatchEvent { routeToMain() }
     }
 
     fun onRegistrationPressed() {}

@@ -121,10 +121,10 @@ class LoginScreen(
                 passwordInput leftRightToLeftRight root offset 16
 
                 loginButton bottomToTop registerButton offset 16
-                loginButton leftRightToLeftRight root
+                loginButton leftRightToLeftRight root offset 16
 
                 registerButton bottomToBottom root.safeArea offset 16
-                loginButton leftRightToLeftRight root
+                registerButton leftRightToLeftRight root offset 16
 
             }
         }

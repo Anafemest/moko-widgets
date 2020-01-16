@@ -4,7 +4,6 @@
 
 package com.icerockdev.library.universal
 
-import com.icerockdev.library.MR
 import dev.icerock.moko.fields.FormField
 import dev.icerock.moko.fields.liveBlock
 import dev.icerock.moko.mvvm.dispatcher.EventsDispatcher
@@ -12,25 +11,41 @@ import dev.icerock.moko.mvvm.dispatcher.EventsDispatcherOwner
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import dev.icerock.moko.resources.desc.StringDesc
 import dev.icerock.moko.resources.desc.desc
-import dev.icerock.moko.widgets.*
-import dev.icerock.moko.widgets.core.Image
+import dev.icerock.moko.widgets.ButtonWidget
+import dev.icerock.moko.widgets.ContainerWidget
+import dev.icerock.moko.widgets.InputWidget
+import dev.icerock.moko.widgets.TextWidget
+import dev.icerock.moko.widgets.button
+import dev.icerock.moko.widgets.constraint
+import dev.icerock.moko.widgets.container
 import dev.icerock.moko.widgets.core.Theme
 import dev.icerock.moko.widgets.core.Value
+import dev.icerock.moko.widgets.input
 import dev.icerock.moko.widgets.screen.Args
-import dev.icerock.moko.widgets.screen.NavigationBar
-import dev.icerock.moko.widgets.screen.NavigationItem
 import dev.icerock.moko.widgets.screen.WidgetScreen
-import dev.icerock.moko.widgets.screen.getParentScreen
 import dev.icerock.moko.widgets.screen.getViewModel
 import dev.icerock.moko.widgets.screen.listen
+import dev.icerock.moko.widgets.screen.navigation.NavigationBar
+import dev.icerock.moko.widgets.screen.navigation.NavigationItem
+import dev.icerock.moko.widgets.screen.navigation.Route
+import dev.icerock.moko.widgets.screen.navigation.RouteWithResult
+import dev.icerock.moko.widgets.screen.navigation.registerRouteHandler
+import dev.icerock.moko.widgets.screen.navigation.route
 import dev.icerock.moko.widgets.style.input.InputType
 import dev.icerock.moko.widgets.style.view.SizeSpec
 import dev.icerock.moko.widgets.style.view.WidgetSize
+import dev.icerock.moko.widgets.text
 
 class LoginScreen(
     private val theme: Theme,
+    private val mainRoute: Route<Unit>,
+    private val registerRoute: RouteWithResult<Unit, String>,
     private val loginViewModelFactory: (EventsDispatcher<LoginViewModel.EventsListener>) -> LoginViewModel
 ) : WidgetScreen<Args.Empty>(), NavigationItem, LoginViewModel.EventsListener {
+
+    private val registerHandler by registerRouteHandler(9, registerRoute) {
+        println("registration respond with $it")
+    }
 
     override val navigationBar: NavigationBar = NavigationBar.None
 
@@ -46,7 +61,7 @@ class LoginScreen(
         constraint(size = WidgetSize.AsParent) {
             val toolBar = +container(
                 size = WidgetSize.Const(SizeSpec.AsParent, SizeSpec.Exact(60f)),
-                id=Id.ToolBarBg
+                id = Id.ToolBarBg
             ) {}
 
             val titleToolBar = +text(
@@ -114,7 +129,6 @@ class LoginScreen(
             }
         }
     }
-
 
 
 //    override fun createContentWidget() = with(theme) {
@@ -204,12 +218,12 @@ class LoginScreen(
         object TitleToolBar : TextWidget.Id
     }
 
-    interface Parent {
-        fun routeToMain()
+    override fun routeToMain() {
+        mainRoute.route(this)
     }
 
-    override fun routeToMain() {
-        getParentScreen<Parent>().routeToMain()
+    override fun routeToRegistration() {
+        registerRoute.route(this, registerHandler)
     }
 }
 
@@ -222,9 +236,12 @@ class LoginViewModel(
     fun onLoginPressed() {
     }
 
-    fun onRegistrationPressed() {}
+    fun onRegistrationPressed() {
+        eventsDispatcher.dispatchEvent { routeToRegistration() }
+    }
 
     interface EventsListener {
         fun routeToMain()
+        fun routeToRegistration()
     }
 }

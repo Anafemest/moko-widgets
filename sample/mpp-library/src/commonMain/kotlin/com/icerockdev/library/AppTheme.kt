@@ -11,9 +11,6 @@ import dev.icerock.moko.graphics.Color
 import dev.icerock.moko.widgets.*
 import dev.icerock.moko.widgets.core.Theme
 import dev.icerock.moko.widgets.factory.*
-import dev.icerock.moko.widgets.screen.NavigationBar
-import dev.icerock.moko.widgets.screen.NavigationScreen
-import dev.icerock.moko.widgets.screen.RootNavigationScreen
 import dev.icerock.moko.widgets.style.background.*
 import dev.icerock.moko.widgets.style.view.*
 import dev.icerock.moko.widgets.utils.platformSpecific
@@ -133,7 +130,6 @@ object AppTheme {
         )
 
         val corners = platformSpecific(android = 25f, ios = 25f)
-
 
         factory[LoginScreen.Id.ToolBarBg] = ContainerViewFactory(
             background = Background(
